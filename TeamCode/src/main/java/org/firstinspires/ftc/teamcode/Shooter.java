@@ -30,6 +30,10 @@ public class Shooter {
     // Output is scaled so the shooter behaves the same on a full or tired battery
     public static double NOMINAL_VOLTAGE = 12.0;
 
+    // Brake the flywheel to a quick stop when the shooter is turned off.
+    // While running it floats, so the PID never fights a braking motor.
+    public static boolean BRAKE_WHEN_OFF = true;
+
     private final DcMotorEx motor;
     private final VoltageSensor battery;
 
@@ -51,9 +55,15 @@ public class Shooter {
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // We run our own PID, so don't use the hub's built-in velocity control
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         battery = hardwareMap.voltageSensor.iterator().next();
         target = defaultTarget();
+        applyZeroPowerBehavior();
+    }
+
+    private void applyZeroPowerBehavior() {
+        motor.setZeroPowerBehavior(!on && BRAKE_WHEN_OFF
+                ? DcMotor.ZeroPowerBehavior.BRAKE
+                : DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
     public static double defaultTarget() {
@@ -61,11 +71,13 @@ public class Shooter {
     }
 
     public void setOn(boolean on) {
-        if (on != this.on) {
-            resetPid();
-        }
+        boolean changed = on != this.on;
         this.on = on;
         openLoopPower = Double.NaN;
+        if (changed) {
+            resetPid();
+            applyZeroPowerBehavior();
+        }
     }
 
     public void toggle() {
@@ -84,6 +96,7 @@ public class Shooter {
     public void runOpenLoop(double power) {
         on = true;
         openLoopPower = power;
+        applyZeroPowerBehavior();
     }
 
     /** Call once per loop. */

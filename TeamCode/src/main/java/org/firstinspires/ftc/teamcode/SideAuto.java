@@ -49,8 +49,8 @@ public abstract class SideAuto extends LinearOpMode {
     private final Pose point2 = poseFactory.of(59.499, 133.5507, 270);
     private final Pose point2Control1 = poseFactory.of(13.0538, 63.2034, 0);
     private final Pose point3Start = poseFactory.of(59.499, 133.5507, 270);
-    private final Pose point3 = poseFactory.of(7.4577, 115.1714, 270);
-    private final Pose point3Control1 = poseFactory.of(48.1509, 91.0456, 0);
+    private final Pose point3 = poseFactory.of(11.9968, 94.2523, 270);
+    private final Pose point3Control1 = poseFactory.of(42.8224, 93.8085, 0);
 
     private Follower follower;
     private Shooter shooter;
